@@ -2,10 +2,6 @@
 
 # Modified from UE4 4.27 source and borrowed scripts from ue4-docker (https://github.com/adamrehn/ue4-docker)
 
-ARG DLL_IMAGE=20H2
-ARG BASETAG=10.0.17763.1817-amd64
-ARG VISUAL_STUDIO_BUILD_NUMBER=16
-# FROM ${DLL_IMAGE}:${BASETAG} AS full
 FROM mcr.microsoft.com/windows:10.0.17763.1817-amd64 as full
 
 SHELL ["cmd", "/S", "/C"]
@@ -25,7 +21,6 @@ RUN curl --progress-bar -L "https://github.com/microsoft/DirectXShaderCompiler/r
 	xcopy /y %TEMP%\bin\x64\dxcompiler.dll C:\Windows\System32\ && `
 	xcopy /y %TEMP%\bin\x64\dxil.dll C:\Windows\System32\
 
-
 # Install the Visual C++ runtime files using Chocolatey
 RUN powershell -NoProfile -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 
@@ -34,7 +29,6 @@ ADD https://aka.ms/vs/16/release/vs_buildtools.exe c:\vs_buildtools.exe
 # Install VS build tool
 # For more info, check out https://docs.microsoft.com/en-us/visualstudio/install/build-tools-container?view=vs-2019
 #
-
 SHELL ["cmd", "/s", "/c"]
 
 RUN c:\vs_buildtools.exe --quiet --wait --norestart --nocache `
@@ -51,3 +45,8 @@ RUN c:\vs_buildtools.exe --quiet --wait --norestart --nocache `
 	--add Microsoft.NetCore.Component.SDK `
  || IF "%ERRORLEVEL%"=="3010" EXIT 0
 
+ADD https://www.perforce.com/downloads/perforce/r21.2/bin.ntx64/helix-p4-x64.exe c:\helix-p4-x64.exe
+
+RUN c:\helix-p4-x64 /s /v""/qn""
+
+ENTRYPOINT ["cmd"]
